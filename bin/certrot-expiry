@@ -1,0 +1,53 @@
+#!/bin/sh
+
+set -e
+set -u
+
+# Required binaries
+CAT=/bin/cat
+ECHO=/bin/echo
+OPENSSL=/usr/bin/openssl
+
+# Print usage message and exit.
+usage() {
+    ${ECHO} "${0}: status-file cert.pem [seconds] " >&2
+    exit 1
+}
+certrot_csr_expiry_message() {
+${CAT} <<EOT
+Certificate will expire within ${1} seconds
+
+${2}
+EOT
+}
+
+# Writes a status message to a file if certificate is about to expire.
+#
+# $1: Path to status file
+# $2: Path to cert file
+# $3: Minimal remaining time to certificate expiration in seconds
+#
+# Writes reason for failure to stdout. Certificate is valid if stdout remains
+# empty.
+certrot_expiry_update_status() {
+    STATUSFILE="${1}"
+    CERTFILE="${2}"
+    THRESHOLD="${3}"
+    RESULT=1
+
+    if ! ${OPENSSL} x509 -in "${CERTFILE}" -noout >/dev/null 2>&1; then
+        ${ECHO} "Certificate file missing or invalid" >&2
+    elif ! ${OPENSSL} x509 -in "${CERTFILE}" -checkend "${THRESHOLD}" -noout >/dev/null 2>&1; then
+        CERTTEXT=$(${OPENSSL} x509 -in "${CERTFILE}" -text 2>/dev/null)
+        certrot_csr_expiry_message "${THRESHOLD}" "${CERTTEXT}" > "${STATUSFILE}"
+        RESULT=0
+    fi
+
+    return ${RESULT}
+}
+
+if [ "${#}" -eq 3 ] && [ "${1:-}" != "-h" ] && [ "${1:-}" != "--help" ]; then
+    certrot_expiry_update_status "${@}"
+else
+    usage
+fi

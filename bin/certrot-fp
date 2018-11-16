@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -e
+set -u
+
+# Required binaries
+ECHO=/bin/echo
+OPENSSL=/usr/bin/openssl
+
+# Print usage message and exit.
+usage() {
+    ${ECHO} "${0}: [cert.pem...]" >&2
+    return 1
+}
+
+# Prints the SHA256 fingerprint of specified certificate files.
+certrot_fp_list() {
+    while [ "${#}" -gt 0 ]; do
+        ${OPENSSL} x509 -in "${1}" -noout -fingerprint -sha256
+        shift
+    done
+}
+
+if [ "${#}" -gt 1 ] && [ "${1:-}" != "-h" ] && [ "${1:-}" != "--help" ]; then
+    certrot_fp_list "${@}"
+else
+    usage
+fi

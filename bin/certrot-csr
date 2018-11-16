@@ -1,0 +1,80 @@
+#!/bin/sh
+
+set -e
+set -u
+
+# Required binaries
+CAT=/bin/cat
+ECHO=/bin/echo
+OPENSSL=/usr/bin/openssl
+
+# Print usage message and exit.
+usage() {
+    ${ECHO} "${0}: status-path csr.pem cert.pem" >&2
+    return 1
+}
+
+certrot_csr_subject_mismatch_message() {
+${CAT} <<EOT
+Certificate subject does not match CSR
+
+CSR Subject:
+${1}
+
+${2}
+EOT
+}
+
+certrot_csr_key_mismatch_message() {
+${CAT} <<EOT
+Certificate public key does not match CSR
+
+CSR public key:
+${1}
+
+${2}
+EOT
+}
+
+# Writes a status message to a file if certificate does not match CSR.
+#
+# $1: Path to status file
+# $2: Path to csr file
+# $3: Path to cert file
+certrot_csr_update_status() {
+    STATUSFILE="${1}"
+    CSRFILE="${2}"
+    CERTFILE="${3}"
+    RESULT=1
+
+    if ! ${OPENSSL} x509 -in "${CERTFILE}" -noout >/dev/null 2>&1; then
+        ${ECHO} "Certificate file missing or invalid" >&2
+    elif ! ${OPENSSL} req -in "${CSRFILE}" -noout >/dev/null 2>&1; then
+        ${ECHO} "CSR file missing or invalid" >&2
+    else
+        CSRSUBJECT=$(${OPENSSL} req -in "${CSRFILE}" -subject -noout 2>/dev/null)
+        CERTSUBJECT=$(${OPENSSL} x509 -in "${CERTFILE}" -subject -noout 2>/dev/null)
+        if [ "${CSRSUBJECT}" != "${CERTSUBJECT}" ]; then
+            CERTTEXT=$(${OPENSSL} x509 -in "${CERTFILE}" -text 2>/dev/null)
+            certrot_csr_subject_mismatch_message "${CSRSUBJECT}" "${CERTTEXT}" > "${STATUSFILE}"
+        fi
+
+        CSRPUBKEY=$(${OPENSSL} req -in "${CSRFILE}" -pubkey -noout 2>/dev/null)
+        CERTPUBKEY=$(${OPENSSL} x509 -in "${CERTFILE}" -pubkey -noout 2>/dev/null)
+        if [ "${CSRPUBKEY}" != "${CERTPUBKEY}" ]; then
+            CSRPKEYTEXT=$(${ECHO} "${CSRPUBKEY}" | ${OPENSSL} pkey -text 2>/dev/null)
+            CERTTEXT=$(${OPENSSL} x509 -in "${CERTFILE}" -text 2>/dev/null)
+            certrot_csr_key_mismatch_message "${CSRPKEYTEXT}" "${CERTTEXT}" > "${STATUSFILE}"
+        fi
+
+        RESULT=0
+    fi
+
+    return ${RESULT}
+}
+
+if [ "${#}" -eq 3 ] && [ "${1:-}" != "-h" ] && [ "${1:-}" != "--help" ]; then
+    certrot_csr_update_status "${@}"
+else
+    usage
+fi
