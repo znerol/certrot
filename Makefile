@@ -23,13 +23,11 @@ bin:
 	# empty for now
 
 doc: \
-	doc/certrot-csr.1 \
 	doc/certrot-expiry.1 \
 	doc/certrot-fp.1 \
 	doc/certrot-server.1
 
 clean:
-	-rm doc/certrot-csr.1
 	-rm doc/certrot-expiry.1
 	-rm doc/certrot-fp.1
 	-rm doc/certrot-server.1
@@ -37,13 +35,11 @@ clean:
 	-rm -rf build
 
 install-doc: doc
-	install -m 0644 -D doc/certrot-csr.1 $(DESTDIR)$(mandir)/man1/certrot-csr.1
 	install -m 0644 -D doc/certrot-expiry.1 $(DESTDIR)$(mandir)/man1/certrot-expiry.1
 	install -m 0644 -D doc/certrot-fp.1 $(DESTDIR)$(mandir)/man1/certrot-fp.1
 	install -m 0644 -D doc/certrot-server.1 $(DESTDIR)$(mandir)/man1/certrot-server.1
 
 install-bin: bin
-	install -m 0755 -D bin/certrot-csr $(DESTDIR)$(bindir)/certrot-csr
 	install -m 0755 -D bin/certrot-expiry $(DESTDIR)$(bindir)/certrot-expiry
 	install -m 0755 -D bin/certrot-fp $(DESTDIR)$(bindir)/certrot-fp
 	install -m 0755 -D bin/certrot-server $(DESTDIR)$(bindir)/certrot-server
@@ -51,11 +47,9 @@ install-bin: bin
 install: install-bin install-doc
 
 uninstall:
-	-rm -f $(DESTDIR)$(bindir)/certrot-csr
 	-rm -f $(DESTDIR)$(bindir)/certrot-expiry
 	-rm -f $(DESTDIR)$(bindir)/certrot-fp
 	-rm -f $(DESTDIR)$(bindir)/certrot-server
-	-rm -f $(DESTDIR)$(mandir)/man1/certrot-csr.1
 	-rm -f $(DESTDIR)$(mandir)/man1/certrot-expiry.1
 	-rm -f $(DESTDIR)$(mandir)/man1/certrot-fp.1
 	-rm -f $(DESTDIR)$(mandir)/man1/certrot-server.1
