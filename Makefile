@@ -14,13 +14,21 @@ ifeq ($(mandir),)
     mandir := $(datarootdir)/man
 endif
 
-all: bin doc
+all: bin test doc
 
 %.1 : %.1.md
 	pandoc -s -t man $< -o $@
 
 bin:
 	# empty for now
+
+lint: bin
+	shellcheck bin/certrot-expiry
+	shellcheck bin/certrot-fp
+	shellcheck bin/certrot-server
+
+test: bin
+	PATH="$(shell pwd)/bin:${PATH}" python -m test
 
 doc: \
 	doc/certrot-expiry.1 \
@@ -75,4 +83,6 @@ dist: dist-src dist-bin
 	install \
 	install-bin \
 	install-doc \
+	lint \
+	test \
 	uninstall \

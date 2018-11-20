@@ -1,0 +1,6 @@
+language: shell
+before_script:
+  - pip install -r test/requirements.txt
+script:
+  - make lint
+  - make test
