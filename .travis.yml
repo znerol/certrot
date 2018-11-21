@@ -1,5 +1,10 @@
 dist: xenial
 language: shell
+addons:
+  apt:
+    packages:
+    - python3
+    - python3-pip
 before_script:
   - pip3 install --user -r test/requirements.txt
 script:
