@@ -1,7 +1,7 @@
 dist: xenial
 language: shell
 before_script:
-  - pip install --user -r test/requirements.txt
+  - pip3 install --user -r test/requirements.txt
 script:
   - make lint
-  - make test
+  - make python=python3 test

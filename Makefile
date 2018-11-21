@@ -13,6 +13,9 @@ endif
 ifeq ($(mandir),)
     mandir := $(datarootdir)/man
 endif
+ifeq ($(python),)
+    python := python
+endif
 
 all: bin test doc
 
@@ -28,7 +31,7 @@ lint: bin
 	shellcheck bin/certrot-server
 
 test: bin
-	PATH="$(shell pwd)/bin:${PATH}" python -m test
+	PATH="$(shell pwd)/bin:${PATH}" $(python) -m test
 
 doc: \
 	doc/certrot-expiry.1 \
