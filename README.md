@@ -3,6 +3,8 @@
 A collection of scripts to monitor validity of certificates on the file system
 as well as those returned by TLS servers.
 
+[![Build Status](https://travis-ci.org/znerol/certrot.svg?branch=master)](https://travis-ci.org/znerol/certrot)
+
 ## INSTALL
 
 *Preferred method*: Build a distribution tarball, copy it to the target machine
