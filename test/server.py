@@ -31,7 +31,7 @@ class ServerTestCase(unittest.TestCase):
         port = sock.getsockname()[1]
 
         # Minimal TLS context.
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         context.load_cert_chain(certfile=certfile, keyfile=keyfile)
 
         return sock, port, context, cert, key
