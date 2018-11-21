@@ -12,8 +12,6 @@ import unittest
 
 from .cert import *
 
-DAY = 24 * 3600
-
 class ServerTestCase(unittest.TestCase):
     workdir = None
 
