@@ -37,9 +37,11 @@ certrot_expiry_update_status() {
 
     if ! ${OPENSSL} x509 -in "${CERTFILE}" -noout >/dev/null 2>&1; then
         ${ECHO} "Certificate file missing or invalid" >&2
-    elif ! ${OPENSSL} x509 -in "${CERTFILE}" -checkend "${THRESHOLD}" -noout >/dev/null 2>&1; then
-        CERTTEXT=$(${OPENSSL} x509 -in "${CERTFILE}" -text 2>/dev/null)
-        certrot_csr_expiry_message "${THRESHOLD}" "${CERTTEXT}" > "${STATUSFILE}"
+    else
+        if ! ${OPENSSL} x509 -in "${CERTFILE}" -checkend "${THRESHOLD}" -noout >/dev/null 2>&1; then
+            CERTTEXT=$(${OPENSSL} x509 -in "${CERTFILE}" -text 2>/dev/null)
+            certrot_csr_expiry_message "${THRESHOLD}" "${CERTTEXT}" > "${STATUSFILE}"
+        fi
         RESULT=0
     fi
 
