@@ -1,3 +1,4 @@
+dist: xenial
 language: shell
 before_script:
   - pip install --user -r test/requirements.txt
