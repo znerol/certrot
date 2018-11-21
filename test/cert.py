@@ -18,6 +18,13 @@ def genkey(bits=512):
         backend=default_backend()
     )
 
+def keywrite(key, path):
+    with open(path, "wb") as stream:
+        stream.write(key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption()))
+
 def gencert(key, days=10, date_start=datetime.datetime.utcnow()):
     # Generate self signed certificate.
     subject = issuer = x509.Name([
