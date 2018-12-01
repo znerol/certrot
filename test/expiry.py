@@ -39,3 +39,21 @@ class ExpiryTestCase(unittest.TestCase):
         statuspath = os.path.join(self.workdir, "cert.status")
         self._cmd("certrot-expiry", statuspath, certpath, str(10 * DAY))
         self.assertTrue(os.path.exists(statuspath))
+
+    def testStatusClearedAfterRenewal(self):
+        """
+        Should remove status file after certificate has been replaced.
+        """
+        key = genkey()
+        certpath = os.path.join(self.workdir, "cert.pem")
+        certwrite(gencert(key, days=1), certpath)
+
+        statuspath = os.path.join(self.workdir, "cert.status")
+        self._cmd("certrot-expiry", statuspath, certpath, str(10 * DAY))
+        self.assertTrue(os.path.exists(statuspath))
+
+        # Certificate renewal.
+        certwrite(gencert(key, days=30), certpath)
+
+        self._cmd("certrot-expiry", statuspath, certpath, str(10 * DAY))
+        self.assertFalse(os.path.exists(statuspath))

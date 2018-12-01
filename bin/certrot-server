@@ -8,6 +8,7 @@ CAT=/bin/cat
 ECHO=/bin/echo
 GREP=/bin/grep
 OPENSSL=/usr/bin/openssl
+RM=/bin/rm
 
 # Print usage message and exit.
 usage() {
@@ -47,7 +48,9 @@ certrot_server_update_status() {
     if ! [ -r "${FPFILE}" ]; then
         ${ECHO} "Fingerprints file missing or not readable" 2>&1
     else
-        if ! ${GREP} -q -x "${SERVERFP}" "${FPFILE}"; then
+        if ${GREP} -q -x "${SERVERFP}" "${FPFILE}"; then
+            ${RM} -f "${STATUSFILE}"
+        else
             CERTTEXT=$(${ECHO} "${SERVERCERT}" | ${OPENSSL} x509 -text 2>/dev/null)
             FPLIST=$(${CAT} "${FPFILE}")
             certrot_server_unexpected_cert_message "${FPLIST}" "${SERVERFP}" "${CERTTEXT}" > "${STATUSFILE}"

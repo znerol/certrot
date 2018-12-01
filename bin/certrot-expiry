@@ -7,6 +7,7 @@ set -u
 CAT=/bin/cat
 ECHO=/bin/echo
 OPENSSL=/usr/bin/openssl
+RM=/bin/rm
 
 # Print usage message and exit.
 usage() {
@@ -38,7 +39,9 @@ certrot_expiry_update_status() {
     if ! ${OPENSSL} x509 -in "${CERTFILE}" -noout >/dev/null 2>&1; then
         ${ECHO} "Certificate file missing or invalid" >&2
     else
-        if ! ${OPENSSL} x509 -in "${CERTFILE}" -checkend "${THRESHOLD}" -noout >/dev/null 2>&1; then
+        if ${OPENSSL} x509 -in "${CERTFILE}" -checkend "${THRESHOLD}" -noout >/dev/null 2>&1; then
+            ${RM} -f "${STATUSFILE}"
+        else
             CERTTEXT=$(${OPENSSL} x509 -in "${CERTFILE}" -text 2>/dev/null)
             certrot_csr_expiry_message "${THRESHOLD}" "${CERTTEXT}" > "${STATUSFILE}"
         fi
